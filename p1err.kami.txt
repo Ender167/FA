@@ -1,0 +1,33 @@
+
+int number;
+int 1i;
+
+bol isPrime;
+string resultText;
+
+!scan(number);
+
+cond ( number == 0 && number == 1 ) do
+isPrime = false;
+endcond
+
+i = 2;
+
+repeat ( i <= number/2 ) do
+
+cond ( number % i == 0 ) do
+isPrime = false;
+
+i = i + 1;
+  
+endrepeat
+
+cond ( isPrime == true ) do
+resultText = "Number is prime";
+
+otherwise
+resultText = "Number is not prime";
+
+endcond
+
+write(resultText);

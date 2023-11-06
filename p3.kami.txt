@@ -1,0 +1,19 @@
+int n;
+int s;
+int i;
+int[100] nrArr;
+
+
+s = 0;
+i = 0;
+scan(n);
+
+i = 0;
+repeat ( i < n ) do
+
+scan(nrArr[i]);
+s = s + nrArr[i];
+i = i + 1;
+
+endrepeat
+display(s); 

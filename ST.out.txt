@@ -1,0 +1,14 @@
+Hash Table capacity 40 size 29
+8 0
+19 number3
+24 true
+25 "Number is prime"
+25 false
+25 1
+25 i
+28 resultText
+34 "Number is not prime"
+34 number
+35 isPrime
+37 2
+37 number2

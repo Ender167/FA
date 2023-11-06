@@ -1,0 +1,18 @@
+
+int a, b, c, max;
+string resultText;
+
+scan(a);
+scan(b);
+scan(c);
+
+max = a;
+cond ( max < b) do
+max = b;
+endcond
+
+cond (max < c) do
+max = c;
+endcond
+
+display(max);
