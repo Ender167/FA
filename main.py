@@ -98,6 +98,29 @@ class HashTable:
         except KeyError:
             return False
 
+class FiniteAutomata:
+    def __init__(self, st= None, alph=None, init_st = None, fin_st = None):
+        if alph is None:
+            alph = []
+        if st is None:
+            st = {}
+        self.states = st
+        self.alphabet = alph
+        self.initialState = init_st
+        self.finalState = fin_st
+
+    def addState(self, state):
+        if state not in self.states:
+            self.states[state] = []
+
+    def addStateList(self, states):
+        for el in states:
+            self.addState(el)
+
+    def addTransition(self, state, transition):
+        if state in self.states:
+            self.states[state].append(transition)
+
 
 def rebuildPif(ht, pif1, number_pif1):
 
@@ -121,10 +144,9 @@ def rebuildPif(ht, pif1, number_pif1):
         ht.rehashed = False
     return new_pif, new_numbered_pif
 
-
-if __name__ == '__main__':
-    ht = HashTable(10)
-    program = open("p1.kami.txt")
+def runScanner(fa):
+    ht = HashTable(100)
+    program = open("p1err.kami.txt")
     tokens_raw = open("token.in.txt")
     pif_file = open("PIF.out.txt", "w")
     st_file = open("ST.out.txt", "w")
@@ -161,7 +183,7 @@ if __name__ == '__main__':
                         (c+1 < len(i) and i[c+1] == ' ' and len(token) >= 1 and token[0] != '"'):
 
                     if i[c] != ' ' and i[c] not in separators and i[c] != '\n' and i[c] not in operators\
-                            and len(token) >= 0 and token[0] != '"':
+                                and len(token) >= 0 and token[0] != '"':
                         token += i[c]
 
                     if len(token) <= 1 and i[c] in operators:
@@ -195,7 +217,20 @@ if __name__ == '__main__':
                             pif.append((token, -1))
                             number_pif.append((numeric_token, -1))
 
-                        elif (beginning_reserved_word in types or token in declared_variables_list) and not token.isnumeric():
+                        elif validateFA(fa, beginning_reserved_word + " " + token):
+                            print("Found token + identifier by FA: " + beginning_reserved_word + " " + token)
+                            numeric_token = -2
+                            #print(numeric_token)
+                            if token not in declared_variables_list:
+                                declared_variables_list.append(token)
+                            if not ht.lookup(token):
+                                ht.add(token)
+                            if ht.lookup(token):
+                                number_pif.append((numeric_token, ht.get_key_position(token)))
+                                pif.append((token, ht.get_key_position(token)))
+
+                        #case if identifier has no token
+                        elif (token in declared_variables_list) and not token.isnumeric():
                             #print('Correct identifier: ' + token)
                             numeric_token = -2
                             #print(numeric_token)
@@ -207,10 +242,18 @@ if __name__ == '__main__':
                                 number_pif.append((numeric_token, ht.get_key_position(token)))
                                 pif.append((token, ht.get_key_position(token)))
 
-                        elif (token[0] == '"' and token[len(token) - 1] == '"') or token.isnumeric() or token in bool_values:
+                        elif validateFA(fa, token):
+                            #print("Found integer constant by FA: " + token)
+                            numeric_token = -3
+                            if not ht.lookup(token):
+                                ht.add(token)
+                            if ht.lookup(token):
+                                number_pif.append((numeric_token, ht.get_key_position(token)))
+                                pif.append((token, ht.get_key_position(token)))
+
+                        elif (token[0] == '"' and token[len(token) - 1] == '"') or token in bool_values: #For other constants
                             #print('Correct constant: ' + token)
                             numeric_token = -3
-                            #print(numeric_token)
                             if not ht.lookup(token):
                                 ht.add(token)
                             if ht.lookup(token):
@@ -222,13 +265,11 @@ if __name__ == '__main__':
                     if len(token) >= 0:
                         if i[c] in operators:
                             numeric_token = token_list.index(i[c])
-                            #print(numeric_token)
                             #print('Correct operator: ' + i[c])
                             pif.append((i[c], -1))
                             number_pif.append((numeric_token, -1))
                         if i[c] in separators:
                             numeric_token = token_list.index(i[c])
-                            #print(numeric_token)
                             #print('Correct separator: ' + i[c])
                             pif.append((i[c], -1))
                             number_pif.append((numeric_token, -1))
@@ -242,6 +283,8 @@ if __name__ == '__main__':
                         token += i[c]
                     if i[c] == ' ' and len(token) >= 1 and token[0] == '"':
                         token += i[c]
+
+
 
         ''' 
         declaration_singleVariables = re.findall("(^[ ]*(?:int|bool|string)+ (?:[a-zA-Z]+[0-9]*[,]*[ ]*)+;)", i)
@@ -293,6 +336,105 @@ if __name__ == '__main__':
             st_file.write(st_txt)
             print(st_txt)
             current = current.next
+
+
+def readFa():
+    fa = open("FA.in")
+    fa_lines = fa.readlines()
+    states = []
+    alphabet = []
+    initial = []
+    final = []
+    transitions = []
+    for i in fa_lines:
+        newRow = i.split()
+        if len(newRow) > 0:
+            if newRow[0] == "states":
+                for e in range(1, len(newRow)):
+                    states.append(newRow[e])
+
+            if newRow[0] == "alphabet":
+                for e in range(1, len(newRow)):
+                    alphabet.append(newRow[e])
+
+            if newRow[0] == "initial":
+                for e in range(1, len(newRow)):
+                    initial.append(newRow[e])
+
+            if newRow[0] == "final":
+                for e in range(1, len(newRow)):
+                    final.append(newRow[e])
+
+            if newRow[0] in states:
+                transitions.append(newRow)
+
+    fa = FiniteAutomata()
+    for el in states:
+        fa.addState(el)
+    for el in transitions:
+        if el[1] == '@':
+            el[1] = ' '
+        fa.addTransition(el[0], [el[1], el[2]])
+    fa.alphabet = alphabet
+    fa.initialState = initial
+    fa.finalState = final
+
+    return fa
+
+def validateFA(fa, validate):
+    current_state = fa.initialState[0]
+    path = []
+    found = False
+    path.append(current_state)
+    for c in validate:
+        found = False
+        current_transitions = fa.states[current_state]
+        for transition in current_transitions:
+            if transition[0] == c:
+                current_state = transition[1]
+                found = True
+                break
+        if found:
+            path.append(current_state)
+        if not found:
+            break
+    print(path)
+    return found
+
+def main():
+    fa = readFa()
+
+    print("States")
+    print(fa.states)
+    print("Alphabet")
+    print(fa.alphabet)
+    print("Initial")
+    print(fa.initialState)
+    print("Final")
+    print(fa.finalState)
+    print("Transitions")
+
+    for e in fa.states:
+        print(e)
+        for el in fa.states[e]:
+            print(el)
+
+    runScanner(fa)
+
+
+
+if __name__ == '__main__':
+    main()
+
+
+
+
+
+
+
+
+
+
 
 
 
