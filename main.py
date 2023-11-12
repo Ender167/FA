@@ -403,21 +403,34 @@ def validateFA(fa, validate):
 
 def main():
     fa = readFa()
-
-    print("States")
-    print(fa.states)
-    print("Alphabet")
-    print(fa.alphabet)
-    print("Initial")
-    print(fa.initialState)
-    print("Final")
-    print(fa.finalState)
-    print("Transitions")
-
-    for e in fa.states:
-        print(e)
-        for el in fa.states[e]:
-            print(el)
+    msg = "1. Print all states\n"
+    msg += "2. Print alphabet\n"
+    msg += "3. Print initial state\n"
+    msg += "4. Print final state\n"
+    msg += "5. Print all transitions"
+    print(msg)
+    while True:
+        option = int(input("Select an option: "))
+        if option == 1:
+            print("States")
+            print(fa.states)
+        if option == 2:
+            print("Alphabet")
+            print(fa.alphabet)
+        if option == 3:
+            print("Initial")
+            print(fa.initialState)
+        if option == 4:
+            print("Final")
+            print(fa.finalState)
+        if option == 5:
+            print("Transitions")
+            for e in fa.states:
+                print(e)
+                for el in fa.states[e]:
+                    print(el)
+        if option == 0:
+            break
 
     runScanner(fa)
 
