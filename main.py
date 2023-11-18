@@ -144,9 +144,9 @@ def rebuildPif(ht, pif1, number_pif1):
         ht.rehashed = False
     return new_pif, new_numbered_pif
 
-def runScanner(fa):
+def runScanner(fa_identifier, fa_integers):
     ht = HashTable(100)
-    program = open("p1err.kami.txt")
+    program = open("p1.kami.txt")
     tokens_raw = open("token.in.txt")
     pif_file = open("PIF.out.txt", "w")
     st_file = open("ST.out.txt", "w")
@@ -166,21 +166,20 @@ def runScanner(fa):
 
     program_lines = program.readlines()
 
-    declared_variables_list = []
     line_number = 0
     lexical_errors_list = []
     pif = []
     number_pif = []
 
+    print(operators)
+
     for i in program_lines:
         token = ""
-        beginning_reserved_word = ""
         line_number += 1
         if len(i) > 1:
             for c in range(len(i)):
-                if i[c] in separators or (i[c] in operators and c+1 < len(i) and i[c+1] not in operators)\
-                         or i[c] == '\n' or (i[c] == ' ' and len(token) >= 1 and token[0] != '"') or\
-                        (c+1 < len(i) and i[c+1] == ' ' and len(token) >= 1 and token[0] != '"'):
+                if i[c] in separators or (i[c] in operators and c+1 < len(i) and i[c+1] not in operators and not i[c+1].isnumeric())\
+                         or i[c] == '\n' or (i[c] == ' ' and len(token) >= 1 and token[0] != '"'):
 
                     if i[c] != ' ' and i[c] not in separators and i[c] != '\n' and i[c] not in operators\
                                 and len(token) >= 0 and token[0] != '"':
@@ -217,32 +216,16 @@ def runScanner(fa):
                             pif.append((token, -1))
                             number_pif.append((numeric_token, -1))
 
-                        elif validateFA(fa, beginning_reserved_word + " " + token):
-                            print("Found token + identifier by FA: " + beginning_reserved_word + " " + token)
+                        elif validateFA(fa_identifier, token):
                             numeric_token = -2
                             #print(numeric_token)
-                            if token not in declared_variables_list:
-                                declared_variables_list.append(token)
                             if not ht.lookup(token):
                                 ht.add(token)
                             if ht.lookup(token):
                                 number_pif.append((numeric_token, ht.get_key_position(token)))
                                 pif.append((token, ht.get_key_position(token)))
 
-                        #case if identifier has no token
-                        elif (token in declared_variables_list) and not token.isnumeric():
-                            #print('Correct identifier: ' + token)
-                            numeric_token = -2
-                            #print(numeric_token)
-                            if token not in declared_variables_list:
-                                declared_variables_list.append(token)
-                            if not ht.lookup(token):
-                                ht.add(token)
-                            if ht.lookup(token):
-                                number_pif.append((numeric_token, ht.get_key_position(token)))
-                                pif.append((token, ht.get_key_position(token)))
-
-                        elif validateFA(fa, token):
+                        elif validateFA(fa_integers, token):
                             #print("Found integer constant by FA: " + token)
                             numeric_token = -3
                             if not ht.lookup(token):
@@ -263,7 +246,7 @@ def runScanner(fa):
                             lexical_errors_list.append("Incorrect: " + token + " at line " + str(line_number))
 
                     if len(token) >= 0:
-                        if i[c] in operators:
+                        if i[c] in operators and token not in operators:
                             numeric_token = token_list.index(i[c])
                             #print('Correct operator: ' + i[c])
                             pif.append((i[c], -1))
@@ -274,17 +257,12 @@ def runScanner(fa):
                             pif.append((i[c], -1))
                             number_pif.append((numeric_token, -1))
 
-                    if beginning_reserved_word == "":
-                        beginning_reserved_word = token
-
                     token = ""
                 else:
                     if i[c] != ' ':
                         token += i[c]
                     if i[c] == ' ' and len(token) >= 1 and token[0] == '"':
                         token += i[c]
-
-
 
         ''' 
         declaration_singleVariables = re.findall("(^[ ]*(?:int|bool|string)+ (?:[a-zA-Z]+[0-9]*[,]*[ ]*)+;)", i)
@@ -320,7 +298,7 @@ def runScanner(fa):
         pif, number_pif = rebuildPif(ht, pif, number_pif)
 
     print("PIF")
-    for a, b in number_pif:
+    for a, b in pif:
         pif_txt = str(a) + " " + str(b) + '\n'
         pif_file.write(pif_txt)
         print(pif_txt)
@@ -338,9 +316,9 @@ def runScanner(fa):
             current = current.next
 
 
-def readFa():
-    fa = open("FA.in")
-    fa_lines = fa.readlines()
+def readFa(file):
+    fa_identifier = open(file)
+    fa_lines = fa_identifier.readlines()
     states = []
     alphabet = []
     initial = []
@@ -398,42 +376,55 @@ def validateFA(fa, validate):
             path.append(current_state)
         if not found:
             break
-    print(path)
+    #print(path)
     return found
 
 def main():
-    fa = readFa()
+    fa_identifiers = readFa("FA3.in")
+    fa_integers = readFa("FA4.in")
+
     msg = "1. Print all states\n"
     msg += "2. Print alphabet\n"
     msg += "3. Print initial state\n"
     msg += "4. Print final state\n"
     msg += "5. Print all transitions"
-    print(msg)
-    while True:
+
+    #print(msg)
+    while len(msg) < 0:
         option = int(input("Select an option: "))
         if option == 1:
             print("States")
-            print(fa.states)
+            print(fa_identifiers.states.keys())
+            print(fa_integers.states.keys())
         if option == 2:
             print("Alphabet")
-            print(fa.alphabet)
+            print(fa_identifiers.alphabet)
+            print(fa_integers.alphabet)
         if option == 3:
             print("Initial")
-            print(fa.initialState)
+            print(fa_identifiers.initialState)
+            print(fa_integers.initialState)
         if option == 4:
             print("Final")
-            print(fa.finalState)
+            print(fa_identifiers.finalState)
+            print(fa_integers.finalState)
         if option == 5:
-            print("Transitions")
-            for e in fa.states:
+            print("Transitions: FA_Identifiers")
+            for e in fa_identifiers.states:
                 print(e)
-                for el in fa.states[e]:
+                for el in fa_identifiers.states[e]:
                     print(el)
+
+            print("Transitions: FA_Identifiers")
+            for e in fa_integers.states:
+                print(e)
+                for el in fa_integers.states[e]:
+                    print(el)
+
         if option == 0:
             break
 
-    runScanner(fa)
-
+    runScanner(fa_identifiers, fa_integers)
 
 
 if __name__ == '__main__':

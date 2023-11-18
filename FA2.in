@@ -1,0 +1,26 @@
+states q0 q1 q2 q3 q4 q5 q6 q7 q8 q9 q10 q11 q12 q13 q14
+alphabet a b c d e f g h i j k l m n o p q r s t u v w x y z _ -
+initial q0
+final q14
+
+q0 i q1
+q1 n q2
+q2 t q14
+
+q0 s q3
+q3 t q4
+q4 r q5
+q5 i q6
+q6 n q7
+q7 g q14
+
+q0 b q8
+q8 o q9
+q9 o q10
+q10 l q14
+
+q0 c q11
+q11 h q12
+q12 a q13
+q13 r q14
+

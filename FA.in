@@ -1,5 +1,5 @@
 states q0 q1 q2 q3 q4 q5 q6 q7 q8 q9 q10 q11 q12 q13 q14 q15 q16 q17 q18 q19 q20 q21 q22 q23 q24
-alphabet a b c d e f g h i j k l m n o p q r s t u v w x y z _ -
+alphabet a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z _ -
 initial q0
 final q21
 
@@ -8,7 +8,6 @@ q1 n q2
 q2 t q3
 
 q3 [ q22
-q22 0 q23
 q22 1 q23
 q22 2 q23
 q22 3 q23

@@ -12,7 +12,7 @@ endcond
 
 i = 2;
 
-repeat ( i <= number/2 and isPrime != false) do
+repeat ( i <= number / 2 and isPrime != false) do
 
 cond ( number % i == 0 ) do
 isPrime = false;
