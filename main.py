@@ -376,8 +376,10 @@ def validateFA(fa, validate):
             path.append(current_state)
         if not found:
             break
-    #print(path)
-    return found
+
+    if path[len(path) - 1] in fa.finalState:
+        return found
+
 
 def main():
     fa_identifiers = readFa("FA3.in")

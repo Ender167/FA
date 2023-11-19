@@ -1,14 +1,14 @@
 Hash Table capacity 100 size 13
-12 number
-14 true
-20 i
-39 resultText
-43 "Number is not prime"
-50 false
-51 number2
-62 2
-65 isPrime
-67 1
-81 number3
-92 0
-93 "Number is prime"
+8 isPrime
+26 i
+35 number
+40 0
+47 number2
+49 "Number is prime"
+52 "Number is not prime"
+54 number3
+56 false
+60 true
+60 2
+84 1
+96 resultText
