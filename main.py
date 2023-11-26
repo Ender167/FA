@@ -1,6 +1,10 @@
 
 import re
 from termcolor import colored
+
+from Grammar import Grammar
+
+
 class Node:
     def __init__(self, key):
         self.key = key
@@ -380,6 +384,49 @@ def validateFA(fa, validate):
     if path[len(path) - 1] in fa.finalState:
         return found
 
+def validate_cfg(gr):
+    for non_terminal in gr.non_terminals:
+        if non_terminal not in gr.productions:
+            return False
+    return True
+def read_grammar(file_path):
+    with open(file_path, 'r') as file:
+        content = file.read().split('\n')
+
+    non_terminals = set(content[0].split(': ')[1].split())
+    terminals = set(content[1].split(': ')[1].split())
+    terminals.add('\n')
+    terminals.add('\t')
+    terminals.add(' ')
+    starting_point = content[2].split(': ')[1]
+
+    grammar_dict = {}
+    for line in content[4:]:
+        if line:
+            key, value = line.split(' -> ')
+            if key not in grammar_dict:
+                grammar_dict[key] = value.split(' | ')
+            else:
+                grammar_dict[key].extend(value.split(' | '))
+
+    gr = Grammar(terminals, non_terminals, starting_point, grammar_dict)
+    if validate_cfg(gr):
+        while True:
+            print("Select one:")
+            print("1) Print the Grammar terminals")
+            print("2) Print the Grammar non-terminals")
+            print("3) Print the Grammar starting point")
+            print("4) Print the Grammar productions")
+            print("5) Print productions for a given non-terminal")
+            print("0) Continue")
+            n=input()
+            if n=="0":
+                break
+            else:
+                gr.print(n)
+        return gr
+    else:
+        print("Not a CFG grammar!!!")
 
 def main():
     fa_identifiers = readFa("FA3.in")
@@ -391,6 +438,7 @@ def main():
     msg += "4. Print final state\n"
     msg += "5. Print all transitions"
 
+    read_grammar('g2.txt')
     #print(msg)
     while len(msg) < 0:
         option = int(input("Select an option: "))
