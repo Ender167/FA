@@ -3,6 +3,7 @@ import re
 from termcolor import colored
 
 from Grammar import Grammar
+from Parser import Parser
 
 
 class Node:
@@ -428,9 +429,51 @@ def read_grammar(file_path):
     else:
         print("Not a CFG grammar!!!")
 
+def test_parser_actions_2():
+
+    terminals = set()
+    terminals.add("a")
+    terminals.add("b")
+    terminals.add("c")
+    non_terminals = set()
+    non_terminals.add("S")
+    prod = dict()
+    prod["S"] = ["aSbS", "aS", "c"]
+    g = Grammar(terminals, non_terminals, "S", prod)
+
+    p1 = Parser('q', 6, [("S", 1), "a", ("S", 1), "a", ("S", 3), "c", "b", ("S", 3), "c"], ["S", "b"], g, "aacbc")
+    p1.advance()
+
+    assert p1.state == 'q'
+    assert p1.position == 7
+    assert p1.working_stack == [("S", 1), "a", ("S", 1), "a", ("S", 3), "c", "b", ("S", 3), "c", "b"]
+    assert p1.input_stack == ["S"]
+
+    p1.momentary_insuccess()
+    assert p1.state == 'b'
+    assert p1.position == 7
+    assert p1.working_stack == [("S", 1), "a", ("S", 1), "a", ("S", 3), "c", "b", ("S", 3), "c", "b"]
+    assert p1.input_stack == ["S"]
+
+    p2 = Parser('q', 6, [("S", 1), "a", ("S", 1), "a", ("S", 3), "c", "b", ("S", 3), "c"], [("S", 1), ("S", 2), ("S", 3)], g, "aacbc")
+    print(p2.working_stack)
+    print(p2.input_stack)
+    p2.expand()
+    print()
+    print(p2.working_stack)
+    print(p2.input_stack)
+
+    assert p2.state == 'q'
+    assert p2.position == 6
+    assert p2.working_stack == [('S', 1), 'a', ('S', 1), 'a', ('S', 3), 'c', 'b', ('S', 3), 'c', ('S', 3)]
+    assert p2.input_stack == [prod['S'][0][::-1]]
+
+
 def main():
     fa_identifiers = readFa("FA3.in")
     fa_integers = readFa("FA4.in")
+
+    test_parser_actions_2()
 
     msg = "1. Print all states\n"
     msg += "2. Print alphabet\n"
