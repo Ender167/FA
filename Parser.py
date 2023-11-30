@@ -16,7 +16,22 @@ class Parser:
         self.state = 'b'
 
     def expand(self):
-        non_terminal, prod_nr = self.input_stack.pop()
+        prod = self.input_stack.pop()
+
+        non_terminal = ""
+        prod_nr = -1
+        found = False
+        for el in self.grammar.productions:
+            i = 1
+            for e in self.grammar.productions[el]:
+                if e == prod:
+                    non_terminal = el
+                    prod_nr = i
+                    found = True
+                    break
+                i = i + 1
+            if found:
+                break
 
         self.working_stack.append((non_terminal, prod_nr))
         for i in range(len(self.grammar.productions[non_terminal]) - 1):

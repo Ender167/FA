@@ -455,7 +455,7 @@ def test_parser_actions_2():
     assert p1.working_stack == [("S", 1), "a", ("S", 1), "a", ("S", 3), "c", "b", ("S", 3), "c", "b"]
     assert p1.input_stack == ["S"]
 
-    p2 = Parser('q', 6, [("S", 1), "a", ("S", 1), "a", ("S", 3), "c", "b", ("S", 3), "c"], [("S", 1), ("S", 2), ("S", 3)], g, "aacbc")
+    p2 = Parser('q', 6, [("S", 1), "a", ("S", 1), "a", ("S", 3), "c", "b", ("S", 3), "c"], ["aSbS", "aS", "c"], g, "aacbc")
     print(p2.working_stack)
     print(p2.input_stack)
     p2.expand()
